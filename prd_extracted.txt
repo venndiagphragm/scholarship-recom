@@ -1,0 +1,393 @@
+SCHOLARPATH
+Product Requirements Document
+AI-Powered Personalized Scholarship Recommendation Platform
+Versi 1.0  |  2026
+1. Executive Summary
+ScholarPath adalah platform web rekomendasi beasiswa berbasis AI yang menghubungkan mahasiswa Indonesia dengan program beasiswa yang paling sesuai dengan profil mereka secara otomatis. Platform ini mengadopsi pengalaman pengguna JobStreet — familiar, efisien, dan mobile-first — dengan diferensiasi utama berupa mesin pencocokan CV yang ditenagai oleh sistem Hybrid BM25 + Bi-Encoder dengan pembobotan multi-kriteria.
+Atribut
+Nilai
+Nama Produk
+ScholarPath
+Versi Dokumen
+1.0
+Target Rilis
+Q3 2026
+Platform
+Web (Responsive: Desktop & Mobile)
+Database Awal
+1.140 program beasiswa
+ML Engine
+Hybrid BM25 + Bi-Encoder (all-MiniLM-L6-v2)
+Bahasa Target
+Indonesia
+2. Latar Belakang & Permasalahan
+2.1 Konteks
+Ribuan program beasiswa tersebar di berbagai situs web yang berbeda — situs universitas, pemerintah, LSM, dan perusahaan swasta. Mahasiswa harus mencarinya satu per satu, membaca syarat panjang, dan seringkali melewatkan peluang yang sebenarnya sangat sesuai dengan profil mereka hanya karena keterbatasan waktu dan informasi.
+2.2 Pain Points Utama
+Informasi beasiswa tersebar di banyak website tanpa agregasi terpusat.
+Pengguna harus membaca syarat setiap beasiswa satu per satu secara manual.
+Tidak ada sistem yang secara otomatis menilai kecocokan profil pengguna dengan syarat beasiswa.
+Proses pencarian tidak efisien dan memakan waktu berjam-jam.
+Banyak mahasiswa kehilangan kesempatan karena terlambat mengetahui adanya beasiswa.
+2.3 Solusi ScholarPath
+Pendekatan Inti
+Upload CV sekali → AI membaca dan memahami profil → Sistem mencocokkan dengan 1.140+ beasiswa → Pengguna mendapat ranking beasiswa terpersonalisasi dengan skor kecocokan yang transparan.
+3. Tujuan Produk
+3.1 Tujuan Bisnis
+Menjadi platform agregasi beasiswa terpercaya untuk mahasiswa Indonesia.
+Memberikan pengalaman pencarian beasiswa yang dipersonalisasi dan efisien.
+Membangun database beasiswa yang terus diperbarui dari berbagai sumber.
+3.2 Tujuan Pengguna
+Menemukan beasiswa yang paling relevan dengan latar belakang akademik dalam hitungan menit.
+Memahami gap antara profil diri dan syarat beasiswa yang diinginkan.
+Tidak melewatkan deadline beasiswa penting.
+3.3 Metrik Keberhasilan (KPI)
+Metrik
+Target (6 Bulan Pertama)
+Pengguna terdaftar
+> 1.000 akun
+CV yang diupload
+> 700 CV unik
+Sesi pencarian per hari
+> 200 sesi
+Rata-rata waktu pencarian
+< 3 menit/sesi
+Click-through ke detail beasiswa
+> 40% dari rekomendasi
+4. Target Pengguna
+4.1 Persona Utama
+Persona
+Mahasiswa Aktif Pencari Beasiswa
+Usia
+18–28 tahun
+Jenjang
+S1, S2, S3
+Lokasi
+Seluruh Indonesia
+Motivasi
+Mendapat pendanaan studi, baik dalam maupun luar negeri
+Frustasi
+Terlalu banyak informasi tersebar, sulit tahu mana yang cocok
+Perilaku
+Aktif di smartphone, familiar dengan platform seperti JobStreet/LinkedIn
+Tech Savvy
+Menengah — bisa upload file, mengisi form, membaca dashboard
+4.2 Persona Sekunder
+Konselor akademik yang membantu mahasiswa bimbingannya mencari beasiswa.
+Orang tua yang ingin mencari informasi beasiswa untuk anak.
+5. Arsitektur Sistem
+5.1 Overview
+Platform dibangun dengan arsitektur dua-layer yang memisahkan concern aplikasi web dari engine AI/ML:
+Layer
+Deskripsi
+Frontend (Web App)
+React + Tailwind CSS — responsive, mobile-first
+Backend API
+FastAPI (Python) — auth, CRUD, orchestration
+ML Engine
+Hybrid BM25 + Bi-Encoder dengan field weighting
+Database
+PostgreSQL + pgvector untuk penyimpanan embedding
+CV Parser
+PyMuPDF — ekstraksi teks dari file PDF
+Cache Layer
+File cache (.pkl) untuk pre-computed embeddings
+5.2 Alur Kerja Sistem (Happy Path)
+Berikut adalah alur kerja utama dari perspektif pengguna:
+Pengguna mendaftar dan membuat akun ScholarPath.
+Pengguna melengkapi profil dasar: nama, universitas, jenjang, jurusan, IPK.
+Pengguna mengupload CV dalam format PDF.
+Sistem mengekstrak teks dari CV menggunakan PyMuPDF.
+ML Engine menghitung skor kecocokan CV terhadap 1.140+ beasiswa menggunakan algoritma Hybrid.
+Sistem menampilkan ranked list beasiswa beserta skor kecocokan dan breakdown per kriteria.
+Pengguna dapat menyimpan (bookmark), memfilter, dan melihat detail beasiswa.
+Pengguna dapat melihat Gap Analysis: syarat beasiswa mana yang belum terpenuhi.
+5.3 Algoritma Pencocokan
+Formula Hybrid Field-Weighted Matching
+score_field = α × BM25_norm(field) + (1-α) × Semantic_norm(field)
+final_score = 0.60 × score_konten + 0.25 × score_nama + 0.10 × score_jenjang + 0.05 × score_negara
+
+α (bobot BM25) ditentukan melalui hyperparameter sweep pada 50 CV sampel, menghasilkan nilai optimal yang memaksimalkan Precision@10.
+Field
+Bobot — Justifikasi
+konten  (0.60)
+Berisi syarat lengkap, benefit, deskripsi — paling informatif untuk matching profil
+nama    (0.25)
+Mengandung bidang studi dan level (contoh: 'Beasiswa S2 Teknik Informatika')
+jenjang (0.10)
+Sinyal jenjang (S1/S2/S3) — penting namun sangat pendek
+negara  (0.05)
+Konteks lokasi — kurang krusial dibanding konten syarat
+6. Fitur & Spesifikasi Halaman
+6.1 Halaman Landing Page
+Halaman pertama yang dilihat pengguna. Tujuan: konversi pengunjung menjadi pengguna terdaftar.
+Hero section: headline nilai utama ScholarPath, CTA utama 'Mulai Cari Beasiswa' dan CTA sekunder 'Lihat Beasiswa'.
+Bagian cara kerja: 4 langkah visual (Upload CV → AI Analisis → Temukan Match → Apply).
+Counter statistik: jumlah beasiswa tersedia, negara tujuan, jenjang.
+Fitur unggulan: card-based dengan ikon modern untuk tiap keunggulan platform.
+Testimoni (future): slot untuk ulasan pengguna.
+CTA bawah: ajakan daftar dengan urgency copy.
+Footer: navigasi, social link, disclaimer.
+6.2 Autentikasi
+Sistem autentikasi standar dengan UX minimalis.
+Halaman Register: nama, email, password, konfirmasi password.
+Halaman Login: email, password, 'lupa password'.
+Email verification (future scope).
+OAuth (future scope): Google Sign-in.
+6.3 Dashboard Pengguna
+Halaman utama setelah login. Ini adalah halaman terpenting dari sisi nilai produk.
+Greeting section: sambutan personal dengan nama pengguna.
+CV Status Card: status upload CV (belum upload / sudah upload + tanggal).
+Rekomendasi Terpersonalisasi: grid card beasiswa dengan match score jika CV sudah diupload.
+Filter bar: jenjang (S1/S2/S3), negara, kategori.
+Beasiswa Trending: daftar beasiswa yang paling banyak dilihat.
+Deadline Approaching: beasiswa yang deadlinenya < 30 hari.
+6.4 Halaman Upload & Analisis CV
+Flow utama diferensiasi ScholarPath dari platform beasiswa biasa.
+Drag-and-drop area untuk upload file PDF CV (maks. 5MB).
+Preview nama file setelah upload berhasil.
+Loading state dengan indikator progres selama AI memproses CV.
+Setelah analisis: tampilkan kata kunci yang berhasil diekstrak dari CV (bidang studi, jenjang, keahlian).
+Tombol 'Lihat Rekomendasi Saya' setelah proses selesai.
+Opsi upload ulang CV untuk memperbarui profil.
+6.5 Halaman Hasil Rekomendasi
+Halaman ranked list beasiswa yang dicocokkan dengan CV pengguna.
+Judul: 'Beasiswa Terbaik untuk Profilmu' dengan subtitle jumlah hasil.
+Sort bar: urutkan berdasarkan Match Score, Deadline, Negara, Jenjang.
+Filter panel (sidebar desktop / bottom sheet mobile): jenjang, negara, kategori.
+Card beasiswa berisi: nama, penyelenggara, negara, jenjang, deadline, match score badge, tombol bookmark dan 'Lihat Detail'.
+Match score badge: visual persentase kecocokan dengan warna (hijau >70%, kuning 40-70%, abu <40%).
+Pagination atau infinite scroll.
+6.6 Halaman Detail Beasiswa
+Halaman lengkap informasi satu program beasiswa.
+Header: nama beasiswa, badge jenjang, badge negara, badge status deadline.
+Tab navigasi: Deskripsi | Syarat | Benefit | Gap Analysis.
+Tab Deskripsi: konten lengkap beasiswa.
+Tab Syarat: daftar syarat terstruktur.
+Tab Benefit: apa yang didapat penerima.
+Tab Gap Analysis: perbandingan profil CV pengguna vs syarat beasiswa — highlight mana yang sudah terpenuhi dan mana yang belum (hanya tampil jika CV sudah diupload).
+Sidebar: match score, deadline, tombol bookmark, tombol 'Kunjungi Situs Resmi'.
+Beasiswa serupa: rekomendasi 3-4 beasiswa dengan profil mirip.
+6.7 Halaman Browse Beasiswa (Tanpa CV)
+Untuk pengguna yang ingin browsing tanpa upload CV, mirip halaman listing JobStreet.
+Search bar: pencarian teks bebas berdasarkan nama atau konten beasiswa.
+Filter: jenjang, negara (10 negara tersedia), kategori.
+Grid card: nama, negara, jenjang, deadline.
+CTA kontekstual: 'Upload CV untuk melihat Match Score kamu'.
+6.8 Halaman Profil Pengguna
+Manajemen akun dan data diri.
+Data diri: nama, email, universitas, jurusan, jenjang aktif, IPK.
+Manajemen CV: tampilkan CV aktif, opsi hapus dan upload ulang.
+Beasiswa Disimpan (Bookmark): daftar beasiswa yang sudah di-bookmark.
+Riwayat Pencarian: beasiswa yang pernah dilihat (future scope).
+7. Database & Struktur Data
+7.1 Sumber Data Beasiswa
+Database awal terdiri dari 1.140 program beasiswa yang dikurasi secara manual dengan distribusi sebagai berikut:
+Dimensi
+Distribusi
+Jenjang S2
+464 program (40.7%)
+Jenjang S1
+405 program (35.5%)
+Jenjang S3
+271 program (23.8%)
+Indonesia
+581 program (51.0%)
+Inggris
+192 program (16.8%)
+Australia
+87 program (7.6%)
+Eropa
+67 program (5.9%)
+Jepang
+60 program (5.3%)
+Belanda
+55 program (4.8%)
+Amerika Serikat
+35 program (3.1%)
+Negara lain
+63 program (5.5%)
+7.2 Skema Data Beasiswa
+Setiap entri beasiswa menyimpan field berikut dari sumber CSV:
+Field
+Tipe & Deskripsi
+id
+String — identifier unik (BEA0001 s/d BEA1140)
+url
+String — URL sumber halaman asli
+nama
+String — nama program beasiswa
+tanggal_publish
+Date (nullable) — tanggal informasi dipublikasikan
+kategori
+String — kategori beasiswa
+konten
+Text — deskripsi lengkap, syarat, benefit (maks. 800 char untuk embedding)
+deadline
+String (nullable) — batas waktu pendaftaran
+negara
+String — negara tujuan studi
+jenjang
+Enum: S1 | S2 | S3
+embedding_konten
+Vector(384) — pre-computed Bi-Encoder embedding field konten
+embedding_nama
+Vector(384) — pre-computed Bi-Encoder embedding field nama
+8. Desain & Panduan UI/UX
+8.1 Filosofi Desain
+ScholarPath menggunakan pendekatan 'Institutional Trust meets Modern Usability': tampilan biru tua yang memberi kesan terpercaya dan akademik, dikombinasikan dengan layout dan interaksi yang bersih dan intuitif seperti platform job portal modern.
+8.2 Sistem Warna
+Token
+Hex — Penggunaan
+--color-primary
+#0D2E5C — Background navigasi, header utama, teks heading
+--color-secondary
+#1A4B8C — Elemen sekunder, hover state, card header
+--color-accent
+#2E7CF6 — CTA button, link aktif, match score badge, progress bar
+--color-surface
+#EBF2FF — Background card, highlight section
+--color-bg
+#F8FAFF — Background halaman utama
+--color-text
+#1A1A2E — Teks body utama
+--color-muted
+#64748B — Teks sekunder, placeholder, label
+--color-border
+#CBD5E1 — Border card, divider, input
+8.3 Tipografi
+Peran
+Font — Penggunaan
+Display
+Plus Jakarta Sans Bold — Logo 'ScholarPath', hero headline, H1
+Heading
+Plus Jakarta Sans SemiBold — H2, H3, card title, navigasi
+Body
+Inter Regular/Medium — Teks paragraf, label, deskripsi
+Data/Mono
+JetBrains Mono — Skor numerik, kode referensi beasiswa
+Semua font tersedia melalui Google Fonts dan dapat dimuat via CDN tanpa biaya lisensi.
+8.4 Ikonografi
+Platform menggunakan Lucide Icons — library ikon open-source modern dengan gaya line art yang konsisten. Tidak menggunakan emoji di seluruh antarmuka. Ikon digunakan untuk:
+Navigasi: Home, Search, Bookmark, User, Upload, Settings.
+Status beasiswa: Calendar (deadline), Globe (negara), GraduationCap (jenjang), Award (beasiswa).
+Aksi: Upload, Download, ExternalLink, Heart, Share2, ChevronRight.
+Feedback: CheckCircle, AlertCircle, Info, X (close).
+Match score: Target, TrendingUp, BarChart2.
+8.5 Responsivitas
+Platform dirancang mobile-first dengan breakpoint sistem Tailwind CSS:
+Breakpoint
+Lebar — Penyesuaian Layout
+Mobile (sm)
+< 640px — Single column, bottom navigation, stacked card
+Tablet (md)
+640–1024px — 2-column grid, sidebar tersembunyi (toggle)
+Desktop (lg)
+> 1024px — 3-column grid, sidebar persisten, header top nav
+Komponen kritis yang berbeda di mobile vs desktop:
+Filter beasiswa: sidebar di desktop, bottom sheet di mobile.
+Navigasi: top navbar di desktop, bottom tab bar di mobile.
+Card beasiswa: 3 kolom di desktop, 1 kolom di mobile.
+Detail beasiswa: 2 kolom (konten + sidebar) di desktop, single column di mobile.
+8.6 Komponen UI Kunci
+Komponen
+Spesifikasi
+Match Score Badge
+Circular progress dengan warna gradasi. > 70%: hijau (#16A34A). 40–70%: kuning (#D97706). < 40%: abu (#94A3B8).
+Scholarship Card
+Border radius 12px, shadow ringan, hover: elevasi + border accent. Menampilkan: nama, negara (dengan ikon bendera teks), jenjang badge, deadline, match score.
+Upload Zone
+Dashed border dengan warna accent, drag-over state berubah solid. Mendukung klik dan drag-and-drop.
+Gap Analysis Row
+Baris dengan ikon CheckCircle (terpenuhi, hijau) atau XCircle (belum, merah) untuk tiap syarat beasiswa.
+Filter Panel
+Checkbox group per kategori filter. Reset filter dengan satu tombol. Counter jumlah filter aktif di toggle button.
+9. Stack Teknologi
+Layer
+Teknologi — Justifikasi
+Frontend
+React 18 + Vite — ekosistem komponen kaya, build cepat
+Styling
+Tailwind CSS v3 — utility-first, mudah responsif, konsisten
+Ikon
+Lucide React — konsisten, tree-shakeable, modern
+Font
+Plus Jakarta Sans + Inter (Google Fonts)
+Backend
+FastAPI (Python) — native dengan ekosistem ML Python
+ML/NLP
+sentence-transformers, rank-bm25, scikit-learn
+CV Parser
+PyMuPDF (fitz) — ekstraksi teks PDF handal
+Database
+PostgreSQL — relasional, stabil, gratis
+Vector Search
+pgvector — embedding tersimpan langsung di Postgres
+Auth
+JWT + bcrypt — stateless, aman
+Containerisasi
+Docker Compose — mudah development dan deployment
+Hosting
+Railway / Render (backend) + Vercel (frontend)
+10. Non-Functional Requirements
+Aspek
+Requirement
+Performa
+Proses matching CV terhadap 1.140 beasiswa < 3 detik (dengan pre-computed embedding)
+Responsivitas
+First Contentful Paint < 2 detik di koneksi 4G
+Keamanan
+CV disimpan di server dengan akses terautentikasi. Password di-hash dengan bcrypt.
+Skalabilitas
+Arsitektur mendukung penambahan beasiswa tanpa retraining model (hanya re-embed dokumen baru)
+Aksesibilitas
+Minimal WCAG 2.1 Level A: kontras warna, keyboard navigation, alt text
+Browser Support
+Chrome 90+, Firefox 88+, Safari 14+, Edge 90+
+Mobile Support
+iOS Safari 14+, Android Chrome 90+
+11. Batasan & Cakupan Future Scope
+11.1 Dalam Cakupan v1.0
+Upload dan parsing CV dalam format PDF.
+Rekomendasi berbasis Hybrid BM25 + Bi-Encoder.
+Browse dan filter 1.140 beasiswa.
+Gap Analysis per beasiswa.
+Sistem bookmark beasiswa.
+Autentikasi email dan password.
+Antarmuka responsif desktop dan mobile.
+11.2 Di Luar Cakupan v1.0 (Future Scope)
+Notifikasi email untuk deadline beasiswa yang tersimpan.
+Sistem pengelola konten (CMS) untuk admin menambah beasiswa baru.
+OAuth (Google Sign-in).
+Fitur community: review dan komentar dari alumni penerima beasiswa.
+Multilingual (Inggris).
+Rekomendasi berbasis riwayat klik dan bookmark (collaborative filtering).
+Integrasi kalender (Google Calendar) untuk reminder deadline.
+11.3 Keterbatasan Sistem ML
+Model Bi-Encoder (all-MiniLM-L6-v2) dominan Bahasa Inggris. CV dan beasiswa dalam Bahasa Indonesia mungkin menghasilkan skor semantic yang tidak optimal — dapat ditingkatkan dengan model multilingual di versi berikutnya.
+Ground truth evaluasi dibuat melalui anotasi semi-otomatis. Precision@10 sistem Hybrid: 0.314, NDCG@10: 0.365 — performa ini acceptable untuk use case rekomendasi informatif.
+Database beasiswa tidak diperbarui secara real-time. Diperlukan proses kurasi berkala.
+12. Glosarium
+Istilah
+Definisi
+Bi-Encoder
+Model neural network yang menghasilkan representasi vektor (embedding) dari teks untuk perbandingan semantik.
+BM25
+Algoritma pencarian lexical berbasis frekuensi kata, varian dari TF-IDF yang mempertimbangkan panjang dokumen.
+Embedding
+Representasi numerik (vektor) dari teks yang mengandung makna semantik.
+Field Weighting
+Teknik memberikan bobot berbeda pada field-field dokumen saat proses scoring.
+Gap Analysis
+Analisis perbedaan antara profil pengguna dan syarat beasiswa.
+Hybrid Matching
+Penggabungan skor dari dua metode berbeda (BM25 lexical + Bi-Encoder semantic) untuk hasil yang lebih robust.
+Match Score
+Skor kecocokan 0–100% antara profil CV pengguna dan syarat suatu beasiswa.
+NDCG@K
+Normalized Discounted Cumulative Gain at K — metrik evaluasi ranking yang mempertimbangkan posisi item relevan.
+pgvector
+Extension PostgreSQL untuk penyimpanan dan pencarian vektor embedding.
+Precision@K
+Proporsi item relevan dari K item teratas dalam hasil ranking.
+Dokumen ini merupakan bagian dari proyek akhir mata kuliah Machine Learning. Seluruh spesifikasi bersifat living document dan dapat diperbarui seiring perkembangan proyek.

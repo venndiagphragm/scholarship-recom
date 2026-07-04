@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+sqlalchemy
+sentence-transformers
+rank-bm25
+PyMuPDF
+python-multipart
+pyjwt
+passlib
+pandas
+pydantic
+pydantic-settings
+bcrypt
