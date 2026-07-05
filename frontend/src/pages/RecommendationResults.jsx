@@ -20,7 +20,7 @@ const RecommendationResults = () => {
       }
       
       try {
-        const res = await axios.get(`${API_URL}/api/recommendations?token=${token}`);
+        const res = await axios.get(`${API_URL}/api/recommendations/?token=${token}`);
         setResults(res.data.results);
       } catch (err) {
         if (err.response?.status === 400 && err.response?.data?.detail.includes('CV')) {
