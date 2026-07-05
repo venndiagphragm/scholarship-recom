@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { UploadCloud, File, AlertCircle, CheckCircle } from 'lucide-react';
+import { API_URL } from '../config';
 
 const UploadCV = () => {
   const [file, setFile] = useState(null);
@@ -68,7 +69,7 @@ const UploadCV = () => {
     formData.append('file', file);
     
     try {
-      await axios.post(`http://localhost:8000/api/cv/upload?token=${token}`, formData, {
+      await axios.post(`${API_URL}/api/cv/upload?token=${token}`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       

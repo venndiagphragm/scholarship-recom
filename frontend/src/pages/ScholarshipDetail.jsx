@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Globe, GraduationCap, Link as LinkIcon, Bookmark, ChevronLeft } from 'lucide-react';
+import { API_URL } from '../config';
 
 const ScholarshipDetail = () => {
   const { id } = useParams();
@@ -14,11 +15,11 @@ const ScholarshipDetail = () => {
   useEffect(() => {
     const fetchDetail = async () => {
       try {
-        const res = await axios.get(`http://localhost:8000/api/scholarships/${id}`);
+        const res = await axios.get(`${API_URL}/api/scholarships/${id}`);
         setScholarship(res.data);
         
         if (token) {
-          const bookRes = await axios.get(`http://localhost:8000/api/scholarships/user/bookmarks?token=${token}`);
+          const bookRes = await axios.get(`${API_URL}/api/scholarships/user/bookmarks?token=${token}`);
           const isBookmarked = bookRes.data.some(b => b.id === id);
           setBookmarked(isBookmarked);
         }
@@ -37,7 +38,7 @@ const ScholarshipDetail = () => {
       return;
     }
     try {
-      const res = await axios.post(`http://localhost:8000/api/scholarships/${id}/bookmark?token=${token}`);
+      const res = await axios.post(`${API_URL}/api/scholarships/${id}/bookmark?token=${token}`);
       setBookmarked(res.data.bookmarked);
     } catch (err) {
       console.error(err);

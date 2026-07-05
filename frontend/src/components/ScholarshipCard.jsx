@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { Calendar, Globe, GraduationCap, ChevronRight, Bookmark } from 'lucide-react';
 import axios from 'axios';
 import { useState } from 'react';
+import { API_URL } from '../config';
 
 const MatchScoreBadge = ({ score }) => {
   if (!score && score !== 0) return null;
@@ -25,7 +26,7 @@ const ScholarshipCard = ({ scholarship, matchScore, bookmarked: initialBookmarke
     const token = localStorage.getItem('token');
     if (!token) return;
     try {
-      const res = await axios.post(`http://localhost:8000/api/scholarships/${scholarship.id}/bookmark?token=${token}`);
+      const res = await axios.post(`${API_URL}/api/scholarships/${scholarship.id}/bookmark?token=${token}`);
       setBookmarked(res.data.bookmarked);
     } catch (err) {
       console.error(err);

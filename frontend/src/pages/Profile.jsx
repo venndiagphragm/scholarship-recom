@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import {
+import { API_URL } from '../config';
   User, Building, Book, GraduationCap, Star, Edit3,
   MapPin, FileText, Award, CheckCircle, Upload, ExternalLink
 } from 'lucide-react';
@@ -71,12 +72,12 @@ const Profile = () => {
       const token = localStorage.getItem('token');
       if (!token) { navigate('/login'); return; }
       try {
-        const res = await axios.get(`http://localhost:8000/api/auth/me?token=${token}`);
+        const res = await axios.get(`${API_URL}/api/auth/me?token=${token}`);
         setProfile(res.data);
         // Sync avatar to navbar via localStorage
         const prefs = JSON.parse(localStorage.getItem('userPrefs') || '{}');
         if (res.data.foto_profil) {
-          prefs.avatarUrl = `http://localhost:8000${res.data.foto_profil}`;
+          prefs.avatarUrl = `${API_URL}${res.data.foto_profil}`;
         }
         if (res.data.theme_color) prefs.themeColor = res.data.theme_color;
         localStorage.setItem('userPrefs', JSON.stringify(prefs));
@@ -105,7 +106,7 @@ const Profile = () => {
 
   const themeColor = profile.theme_color || 'blue';
   const color = THEME_COLORS[themeColor] || THEME_COLORS.blue;
-  const avatarUrl = profile.foto_profil ? `http://localhost:8000${profile.foto_profil}` : null;
+  const avatarUrl = profile.foto_profil ? `${API_URL}${profile.foto_profil}` : null;
   const initials = profile.nama ? profile.nama.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() : 'U';
   const isComplete = profile.universitas && profile.jurusan && profile.jenjang && profile.ipk;
 

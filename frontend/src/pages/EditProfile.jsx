@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import {
+import { API_URL } from '../config';
   User, Building, Book, GraduationCap, ArrowLeft, Save,
   Camera, X, Check, Palette, Frame, Eye, EyeOff, FileText, Sparkles
 } from 'lucide-react';
@@ -63,7 +64,7 @@ const EditProfile = () => {
       const token = localStorage.getItem('token');
       if (!token) { navigate('/login'); return; }
       try {
-        const res = await axios.get(`http://localhost:8000/api/auth/me?token=${token}`);
+        const res = await axios.get(`${API_URL}/api/auth/me?token=${token}`);
         setProfile({
           nama: res.data.nama || '',
           universitas: res.data.universitas || '',
@@ -74,7 +75,7 @@ const EditProfile = () => {
           theme_color: res.data.theme_color || 'blue'
         });
         if (res.data.foto_profil) {
-          setAvatarPreview(`http://localhost:8000${res.data.foto_profil}`);
+          setAvatarPreview(`${API_URL}${res.data.foto_profil}`);
         }
         // Load localStorage prefs
         const prefs = JSON.parse(localStorage.getItem('userPrefs') || '{}');
@@ -133,11 +134,11 @@ const EditProfile = () => {
         const formData = new FormData();
         formData.append('file', avatarFile);
         const photoRes = await axios.post(
-          `http://localhost:8000/api/auth/upload-photo?token=${token}`,
+          `${API_URL}/api/auth/upload-photo?token=${token}`,
           formData,
           { headers: { 'Content-Type': 'multipart/form-data' } }
         );
-        const newAvatarUrl = `http://localhost:8000${photoRes.data.foto_profil}`;
+        const newAvatarUrl = `${API_URL}${photoRes.data.foto_profil}`;
         setAvatarPreview(newAvatarUrl);
         setAvatarFile(null);
         // Update navbar
@@ -149,7 +150,7 @@ const EditProfile = () => {
       }
 
       // 2. Save profile data
-      await axios.put(`http://localhost:8000/api/auth/profile?token=${token}`, profile);
+      await axios.put(`${API_URL}/api/auth/profile?token=${token}`, profile);
 
       // 3. Save prefs to localStorage
       savePrefsToLocalStorage(profile.theme_color);

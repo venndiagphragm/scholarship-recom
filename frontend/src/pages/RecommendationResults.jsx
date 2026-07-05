@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import ScholarshipCard from '../components/ScholarshipCard';
 import { Target } from 'lucide-react';
+import { API_URL } from '../config';
 
 const RecommendationResults = () => {
   const [results, setResults] = useState([]);
@@ -19,7 +20,7 @@ const RecommendationResults = () => {
       }
       
       try {
-        const res = await axios.get(`http://localhost:8000/api/recommendations?token=${token}`);
+        const res = await axios.get(`${API_URL}/api/recommendations?token=${token}`);
         setResults(res.data.results);
       } catch (err) {
         if (err.response?.status === 400 && err.response?.data?.detail.includes('CV')) {

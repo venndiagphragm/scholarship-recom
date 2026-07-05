@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Upload, FileText, ChevronRight, Bookmark } from 'lucide-react';
 import ScholarshipCard from '../components/ScholarshipCard';
+import { API_URL } from '../config';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -19,10 +20,10 @@ const Dashboard = () => {
 
     const fetchData = async () => {
       try {
-        const userRes = await axios.get(`http://localhost:8000/api/auth/me?token=${token}`);
+        const userRes = await axios.get(`${API_URL}/api/auth/me?token=${token}`);
         setUser(userRes.data);
         
-        const bookRes = await axios.get(`http://localhost:8000/api/scholarships/user/bookmarks?token=${token}`);
+        const bookRes = await axios.get(`${API_URL}/api/scholarships/user/bookmarks?token=${token}`);
         setBookmarks(bookRes.data);
       } catch (err) {
         console.error(err);

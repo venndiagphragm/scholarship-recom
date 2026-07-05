@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { AlertCircle } from 'lucide-react';
+import { API_URL } from '../config';
 
 const Register = () => {
   const [nama, setNama] = useState('');
@@ -23,7 +24,7 @@ const Register = () => {
 
     setLoading(true);
     try {
-      const res = await axios.post('http://localhost:8000/api/auth/register', { nama, email, password });
+      const res = await axios.post(`${API_URL}/api/auth/register`, { nama, email, password });
       localStorage.setItem('token', res.data.access_token);
       localStorage.setItem('user', JSON.stringify(res.data.user));
       window.dispatchEvent(new Event('storage'));

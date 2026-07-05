@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import ScholarshipCard from '../components/ScholarshipCard';
 import { Search } from 'lucide-react';
+import { API_URL } from '../config';
 
 const Browse = () => {
   const [scholarships, setScholarships] = useState([]);
@@ -13,7 +14,7 @@ const Browse = () => {
   const fetchScholarships = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`http://localhost:8000/api/scholarships/`, {
+      const res = await axios.get(`${API_URL}/api/scholarships/`, {
         params: { search, jenjang, negara, limit: 30 }
       });
       setScholarships(res.data.items);
