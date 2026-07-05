@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
+import { API_URL } from '../config';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import {
-import { API_URL } from '../config';
   User, Building, Book, GraduationCap, Star, Edit3,
   MapPin, FileText, Award, CheckCircle, Upload, ExternalLink
 } from 'lucide-react';
